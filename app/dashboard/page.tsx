@@ -10,7 +10,8 @@ import HookSection from '@/components/dashboard/HookSection';
 import CaptionSection from '@/components/dashboard/CaptionSection';
 import CoverSection from '@/components/dashboard/CoverSection';
 import { GenerateOptions, GeneratedResult, UsageInfo, ProcessingStep } from '@/lib/types';
-import { mockGenerateVideo, mockGetJobStatus, mockGetUsage } from '@/lib/mockApi';
+import { generateVideo, pollProjectStatus, getUserUsage, APIError } from '@/lib/api';
+import ErrorState from '@/components/dashboard/ErrorState';
 
 export default function DashboardPage() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -18,6 +19,10 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [error, setError] = useState<{
+    type: 'video_too_long' | 'invalid_url' | 'quota_exceeded' | 'processing_failed' | 'network_error' | 'unknown';
+    message: string;
+  } | null>(null);
 
   // Load usage info on mount
   useEffect(() => {
@@ -25,37 +30,68 @@ export default function DashboardPage() {
   }, []);
 
   const loadUsage = async () => {
-    const usageData = await mockGetUsage();
-    setUsage(usageData);
+    try {
+      const usageData = await getUserUsage();
+      setUsage(usageData);
+    } catch (err) {
+      console.error('Failed to load usage:', err);
+    }
   };
 
   const handleGenerate = async (options: GenerateOptions) => {
     setIsProcessing(true);
     setProgress(0);
     setResult(null);
+    setError(null);
 
-    // Simulate processing steps
-    const steps: ProcessingStep[] = ['downloading', 'transcribing', 'analyzing', 'rendering'];
-    
-    for (let i = 0; i < steps.length; i++) {
-      setCurrentStep(steps[i]);
+    try {
+      // Create project
+      const { projectId } = await generateVideo(options);
+
+      // Poll for status updates
+      const finalResult = await pollProjectStatus(
+        projectId,
+        (status, step, progressValue) => {
+          setCurrentStep(step);
+          setProgress(progressValue);
+        },
+        3000 // Poll every 3 seconds
+      );
+
+      setResult(finalResult);
+      setProgress(100);
       
-      // Simulate progress for each step
-      const stepProgress = (i / steps.length) * 100;
-      for (let p = stepProgress; p < stepProgress + 25; p += 5) {
-        await new Promise(resolve => setTimeout(resolve, 400));
-        setProgress(Math.min(p, 100));
+      // Refresh usage
+      await loadUsage();
+    } catch (err) {
+      if (err instanceof APIError) {
+        setError({
+          type: err.type,
+          message: err.message,
+        });
+      } else {
+        setError({
+          type: 'unknown',
+          message: err instanceof Error ? err.message : 'Unknown error occurred',
+        });
       }
+    } finally {
+      setIsProcessing(false);
     }
+  };
 
-    // Get final result
-    const jobResult = await mockGetJobStatus('mock_job_id');
-    setResult(jobResult);
+  const handleRetry = () => {
+    setError(null);
     setIsProcessing(false);
-    setProgress(100);
+    setResult(null);
+    setProgress(0);
+  };
 
-    // Refresh usage
-    loadUsage();
+  const handleChooseAnother = () => {
+    setError(null);
+    setIsProcessing(false);
+    setResult(null);
+    setProgress(0);
   };
 
   const handleUpdateHook = (hook: any) => {
@@ -115,7 +151,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {!isProcessing && !result && (
+            {!isProcessing && !result && !error && (
               <InputForm onGenerate={handleGenerate} isProcessing={false} />
             )}
 
@@ -123,7 +159,17 @@ export default function DashboardPage() {
               <ProcessingState currentStep={currentStep} progress={progress} />
             )}
 
-            {result && !isProcessing && (
+            {error && (
+              <ErrorState
+                errorType={error.type}
+                customMessage={error.message}
+                onRetry={handleRetry}
+                onChooseAnother={handleChooseAnother}
+                onUpgrade={() => window.location.href = '/#pricing'}
+              />
+            )}
+
+            {result && !isProcessing && !error && (
               <>
                 {/* Success Message */}
                 <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-6 flex items-center gap-4">

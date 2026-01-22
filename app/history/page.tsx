@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import EmptyState from '@/components/dashboard/EmptyState';
 import { HistoryItem, JobStatus } from '@/lib/types';
-import { mockGetHistory } from '@/lib/mockApi';
+import { getProjectHistory } from '@/lib/api';
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -17,9 +17,14 @@ export default function HistoryPage() {
 
   const loadHistory = async () => {
     setLoading(true);
-    const data = await mockGetHistory();
-    setHistory(data);
-    setLoading(false);
+    try {
+      const data = await getProjectHistory();
+      setHistory(data);
+    } catch (error) {
+      console.error('Failed to load history:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredHistory = filter === 'all' 
