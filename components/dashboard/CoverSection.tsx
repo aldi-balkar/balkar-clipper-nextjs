@@ -15,7 +15,7 @@ const platformIcons: Record<PlatformType, { icon: string; color: string; name: s
   facebook: { icon: '👥', color: 'from-blue-500 to-blue-600', name: 'Facebook' },
 };
 
-export default function CoverSection({ covers, onUpdate }: CoverSectionProps) {
+export default function CoverSection({ covers, onUpdate }: Readonly<CoverSectionProps>) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editedHeadline, setEditedHeadline] = useState('');
   const [regenerating, setRegenerating] = useState<number | null>(null);
@@ -103,10 +103,11 @@ export default function CoverSection({ covers, onUpdate }: CoverSectionProps) {
                 {/* Inline Edit Headline */}
                 {isEditing ? (
                   <div className="space-y-2">
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    <label htmlFor={`headline-edit-${index}`} className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
                       Edit Headline
                     </label>
                     <input
+                      id={`headline-edit-${index}`}
                       type="text"
                       value={editedHeadline}
                       onChange={(e) => setEditedHeadline(e.target.value)}
@@ -134,20 +135,21 @@ export default function CoverSection({ covers, onUpdate }: CoverSectionProps) {
                     </div>
                   </div>
                 ) : (
-                  <div 
+                  <button
+                    type="button"
+                    className="w-full text-left cursor-pointer group/edit hover:bg-slate-800/50 p-2 rounded-lg transition-all"
                     onClick={() => handleEditStart(index)}
-                    className="cursor-pointer group/edit hover:bg-slate-800/50 p-2 rounded-lg transition-all"
                   >
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">
+                    <div className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">
                       Headline
-                    </label>
+                    </div>
                     <p className="text-white text-sm font-medium leading-snug group-hover/edit:text-purple-300 transition-colors">
                       {cover.headline}
                     </p>
                     <p className="text-xs text-slate-500 mt-1 opacity-0 group-hover/edit:opacity-100 transition-opacity">
                       ✏️ Klik untuk edit
                     </p>
-                  </div>
+                  </button>
                 )}
 
                 {/* Action Buttons */}

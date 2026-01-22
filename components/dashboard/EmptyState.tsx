@@ -67,7 +67,7 @@ export default function EmptyState({
   actionLabel,
   actionHref,
   onAction,
-}: EmptyStateProps) {
+}: Readonly<EmptyStateProps>) {
   const config = variantConfig[variant];
   
   const displayTitle = title || config.title;
@@ -92,7 +92,7 @@ export default function EmptyState({
           {/* Action Button */}
           {(actionHref || onAction) && (
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {actionHref ? (
+              {actionHref && (
                 <Link
                   href={actionHref}
                   className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-purple-500/30"
@@ -102,7 +102,8 @@ export default function EmptyState({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
-              ) : onAction ? (
+              )}
+              {!actionHref && onAction && (
                 <button
                   onClick={onAction}
                   className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-purple-500/30"
@@ -112,7 +113,7 @@ export default function EmptyState({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>
-              ) : null}
+              )}
             </div>
           )}
         </div>

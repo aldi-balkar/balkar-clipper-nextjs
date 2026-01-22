@@ -9,7 +9,7 @@ interface HookSectionProps {
   onGenerateAlternatives?: () => void;
 }
 
-export default function HookSection({ hook, onUpdate, onGenerateAlternatives }: HookSectionProps) {
+export default function HookSection({ hook, onUpdate, onGenerateAlternatives }: Readonly<HookSectionProps>) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(hook.text);
   const [copied, setCopied] = useState(false);
@@ -86,8 +86,9 @@ export default function HookSection({ hook, onUpdate, onGenerateAlternatives }: 
       ) : (
         <div className="mb-6">
           {/* Big Prominent Hook Display */}
-          <div
-            className="p-6 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 border-2 border-purple-500/30 rounded-2xl mb-4 cursor-pointer hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all group relative overflow-hidden"
+          <button
+            type="button"
+            className="w-full text-left p-6 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 border-2 border-purple-500/30 rounded-2xl mb-4 cursor-pointer hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20 transition-all group relative overflow-hidden"
             onClick={() => setIsEditing(true)}
           >
             {/* Decorative gradient */}
@@ -110,7 +111,7 @@ export default function HookSection({ hook, onUpdate, onGenerateAlternatives }: 
                 <span className="text-xs font-bold text-yellow-300">⚡ 3 Detik Pertama</span>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2">

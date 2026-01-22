@@ -87,13 +87,6 @@ export default function DashboardPage() {
     setProgress(0);
   };
 
-  const handleChooseAnother = () => {
-    setError(null);
-    setIsProcessing(false);
-    setResult(null);
-    setProgress(0);
-  };
-
   const handleUpdateHook = (hook: any) => {
     if (result) {
       setResult({ ...result, hook });
@@ -164,8 +157,8 @@ export default function DashboardPage() {
                 errorType={error.type}
                 customMessage={error.message}
                 onRetry={handleRetry}
-                onChooseAnother={handleChooseAnother}
-                onUpgrade={() => window.location.href = '/#pricing'}
+                onChooseAnother={handleRetry}
+                onUpgrade={() => globalThis.location.href = '/#pricing'}
               />
             )}
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { VideoOutput, PlatformType } from '@/lib/types';
 
 interface VideoResultCardProps {
@@ -22,9 +21,7 @@ const bestReasonLabels = {
   engagement: { label: '🔥 Engagement Tinggi', color: 'from-pink-500 to-purple-500' },
 };
 
-export default function VideoResultCard({ video, isBest = false, bestReason = 'potential' }: VideoResultCardProps) {
-  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
-
+export default function VideoResultCard({ video, isBest = false, bestReason = 'potential' }: Readonly<VideoResultCardProps>) {
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -36,7 +33,6 @@ export default function VideoResultCard({ video, isBest = false, bestReason = 'p
     const url = type === 'video' ? video.videoUrl : video.subtitleUrl;
     console.log('Download:', url);
     alert(`Download ${type} dimulai...`);
-    setShowDownloadMenu(false);
   };
 
   return (

@@ -44,7 +44,7 @@ const steps: {
   },
 ];
 
-export default function ProcessingState({ currentStep, progress }: ProcessingStateProps) {
+export default function ProcessingState({ currentStep, progress }: Readonly<ProcessingStateProps>) {
   const currentStepIndex = steps.findIndex(s => s.key === currentStep);
 
   return (
@@ -83,42 +83,50 @@ export default function ProcessingState({ currentStep, progress }: ProcessingSta
             const isCurrent = index === currentStepIndex;
             const isPending = index > currentStepIndex;
 
+            let containerClassName = 'bg-slate-900/20 border border-slate-700/30';
+            if (isCurrent) {
+              containerClassName = 'bg-purple-500/10 border-2 border-purple-500/50 shadow-lg shadow-purple-500/20';
+            } else if (isCompleted) {
+              containerClassName = 'bg-green-500/5 border border-green-500/30';
+            }
+
+            let iconClassName = 'bg-slate-700/50 border-2 border-slate-600 text-slate-500';
+            if (isCompleted) {
+              iconClassName = 'bg-green-500/20 border-2 border-green-500 text-green-400';
+            } else if (isCurrent) {
+              iconClassName = 'bg-purple-500/20 border-2 border-purple-500 text-purple-300 animate-pulse';
+            }
+
+            let labelClassName = 'text-slate-500';
+            if (isCurrent) {
+              labelClassName = 'text-purple-300';
+            } else if (isCompleted) {
+              labelClassName = 'text-green-400';
+            }
+
+            let descriptionClassName = 'text-slate-500';
+            if (isCurrent) {
+              descriptionClassName = 'text-slate-300';
+            } else if (isCompleted) {
+              descriptionClassName = 'text-slate-400';
+            }
+
             return (
               <div
                 key={step.key}
-                className={`flex items-start gap-4 p-4 rounded-xl transition-all ${
-                  isCurrent
-                    ? 'bg-purple-500/10 border-2 border-purple-500/50 shadow-lg shadow-purple-500/20'
-                    : isCompleted
-                    ? 'bg-green-500/5 border border-green-500/30'
-                    : 'bg-slate-900/20 border border-slate-700/30'
-                }`}
+                className={`flex items-start gap-4 p-4 rounded-xl transition-all ${containerClassName}`}
               >
                 {/* Icon/Status */}
                 <div
-                  className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${
-                    isCompleted
-                      ? 'bg-green-500/20 border-2 border-green-500 text-green-400'
-                      : isCurrent
-                      ? 'bg-purple-500/20 border-2 border-purple-500 text-purple-300 animate-pulse'
-                      : 'bg-slate-700/50 border-2 border-slate-600 text-slate-500'
-                  }`}
+                  className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${iconClassName}`}
                 >
-                  {isCompleted ? '✓' : isCurrent ? step.icon : step.icon}
+                  {isCompleted ? '✓' : step.icon}
                 </div>
 
                 {/* Label & Description */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <p
-                      className={`font-bold text-base ${
-                        isCurrent
-                          ? 'text-purple-300'
-                          : isCompleted
-                          ? 'text-green-400'
-                          : 'text-slate-500'
-                      }`}
-                    >
+                    <p className={`font-bold text-base ${labelClassName}`}>
                       {isCompleted ? '✅ ' : ''}{step.label}
                     </p>
                     {(isCurrent || isPending) && (
@@ -132,13 +140,7 @@ export default function ProcessingState({ currentStep, progress }: ProcessingSta
                     )}
                   </div>
                   
-                  <p className={`text-sm ${
-                    isCurrent
-                      ? 'text-slate-300'
-                      : isCompleted
-                      ? 'text-slate-400'
-                      : 'text-slate-500'
-                  }`}>
+                  <p className={`text-sm ${descriptionClassName}`}>
                     {step.description}
                   </p>
                   

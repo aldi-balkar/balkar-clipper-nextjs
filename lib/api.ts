@@ -9,9 +9,7 @@ import {
   UsageInfo, 
   HistoryItem,
   ProcessingStep,
-  JobStatus,
-  VideoStyle,
-  OutputLanguage
+  JobStatus
 } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -48,22 +46,8 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const errorMessage = errorData.detail || errorData.message || 'An error occurred';
-
-      // Map HTTP errors to error types
-      if (response.status === 403) {
-        throw new APIError(403, errorMessage, 'quota_exceeded');
-      } else if (response.status === 400) {
-        if (errorMessage.includes('URL') || errorMessage.includes('link')) {
-          throw new APIError(400, errorMessage, 'invalid_url');
-        } else if (errorMessage.includes('terlalu panjang') || errorMessage.includes('too long')) {
-          throw new APIError(400, errorMessage, 'video_too_long');
-        }
-        throw new APIError(400, errorMessage, 'unknown');
-      } else if (response.status === 500) {
-        throw new APIError(500, errorMessage, 'processing_failed');
-      }
-      
-      throw new APIError(response.status, errorMessage, 'unknown');
+      const errorType = getErrorType(response.status, errorMessage);
+      throw new APIError(response.status, errorMessage, errorType);
     }
 
     return response.json();
@@ -79,6 +63,24 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     
     throw new APIError(0, error instanceof Error ? error.message : 'Unknown error', 'unknown');
   }
+}
+
+/**
+ * Determine error type based on status and message
+ */
+function getErrorType(
+  status: number,
+  message: string
+): 'video_too_long' | 'invalid_url' | 'quota_exceeded' | 'processing_failed' | 'network_error' | 'unknown' {
+  if (status === 403) return 'quota_exceeded';
+  if (status === 500) return 'processing_failed';
+  
+  if (status === 400) {
+    if (message.includes('URL') || message.includes('link')) return 'invalid_url';
+    if (message.includes('terlalu panjang') || message.includes('too long')) return 'video_too_long';
+  }
+  
+  return 'unknown';
 }
 
 /**
@@ -209,6 +211,8 @@ export async function getProjectStatus(projectId: string): Promise<{
         imageUrl: c.image_url,
         headline: c.headline,
       })),
+      createdAt: new Date(),
+      status: 'done',
     };
   }
 
@@ -233,10 +237,10 @@ export async function getUserUsage(): Promise<UsageInfo> {
   }>('/usage');
 
   return {
-    videosGenerated: response.videos_generated,
-    videosLimit: response.videos_limit,
-    plan: response.plan as 'free' | 'pro' | 'enterprise',
-    periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Mock: 30 days from now
+    used: response.videos_generated,
+    total: response.videos_limit,
+    planName: response.plan,
+    nextResetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Mock: 30 days from now
   };
 }
 

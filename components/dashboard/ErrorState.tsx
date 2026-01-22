@@ -59,7 +59,7 @@ export default function ErrorState({
   onChooseAnother, 
   onUpgrade,
   customMessage 
-}: ErrorStateProps) {
+}: Readonly<ErrorStateProps>) {
   const config = errorConfig[errorType];
   
   const colorClasses = {

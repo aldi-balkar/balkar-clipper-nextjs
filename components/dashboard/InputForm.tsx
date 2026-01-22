@@ -8,7 +8,7 @@ interface InputFormProps {
   isProcessing: boolean;
 }
 
-export default function InputForm({ onGenerate, isProcessing }: InputFormProps) {
+export default function InputForm({ onGenerate, isProcessing }: Readonly<InputFormProps>) {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [style, setStyle] = useState<VideoStyle>('santai');
   const [language, setLanguage] = useState<OutputLanguage>('indonesia');
@@ -48,10 +48,11 @@ export default function InputForm({ onGenerate, isProcessing }: InputFormProps) 
       <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8">
         {/* YouTube URL Input */}
         <div className="mb-6">
-          <label className="block text-sm font-semibold text-slate-300 mb-3">
+          <label htmlFor="youtube-url-input" className="block text-sm font-semibold text-slate-300 mb-3">
             Link YouTube <span className="text-red-400">*</span>
           </label>
           <input
+            id="youtube-url-input"
             type="url"
             value={youtubeUrl}
             onChange={(e) => setYoutubeUrl(e.target.value)}
@@ -64,10 +65,11 @@ export default function InputForm({ onGenerate, isProcessing }: InputFormProps) 
         {/* Style Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-3">
+            <label htmlFor="style-select" className="block text-sm font-semibold text-slate-300 mb-3">
               Gaya Video
             </label>
             <select
+              id="style-select"
               value={style}
               onChange={(e) => setStyle(e.target.value as VideoStyle)}
               className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
@@ -80,10 +82,11 @@ export default function InputForm({ onGenerate, isProcessing }: InputFormProps) 
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-3">
+            <label htmlFor="language-select" className="block text-sm font-semibold text-slate-300 mb-3">
               Bahasa Output
             </label>
             <select
+              id="language-select"
               value={language}
               onChange={(e) => setLanguage(e.target.value as OutputLanguage)}
               className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
@@ -160,10 +163,11 @@ export default function InputForm({ onGenerate, isProcessing }: InputFormProps) 
           <div className="bg-slate-900/30 border border-slate-700/30 rounded-xl p-6 mb-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-3">
+                <label htmlFor="duration-select" className="block text-sm font-semibold text-slate-300 mb-3">
                   Durasi Video
                 </label>
                 <select
+                  id="duration-select"
                   value={duration}
                   onChange={(e) => setDuration(e.target.value as VideoDuration)}
                   className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-purple-500 transition-all"
@@ -175,10 +179,11 @@ export default function InputForm({ onGenerate, isProcessing }: InputFormProps) 
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-3">
+                <label htmlFor="output-count-select" className="block text-sm font-semibold text-slate-300 mb-3">
                   Jumlah Output
                 </label>
                 <select
+                  id="output-count-select"
                   value={numberOfOutputs}
                   onChange={(e) => setNumberOfOutputs(Number(e.target.value) as 1 | 3 | 5)}
                   className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-purple-500 transition-all"
